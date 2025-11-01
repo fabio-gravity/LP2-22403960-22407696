@@ -210,6 +210,16 @@ public class GameManager {
         return out;
     }
 
+    public String getProgrammerInfoAsStr(int id) {
+        Player p = findById(id);
+        if (p == null) return null;
+        return p.id + " | " + p.name + " | " + (p.pos + 1) + " | " + toJarCase(p.colorLower) + " | Em Jogo";
+    }
+
+    public int getCurrentPlayerID() {
+        if (nPlayers == 0) return -1;
+        return players[currentIdx].id;
+    }
 
 
 
