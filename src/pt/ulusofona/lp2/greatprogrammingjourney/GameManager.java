@@ -222,5 +222,110 @@ public class GameManager {
     }
 
 
+    public boolean moveCurrentPlayer(int nrSpaces) {
+        if (finished || nPlayers == 0) return false;
+        if (nrSpaces < MIN_DICE || nrSpaces > MAX_DICE) return false;
 
+        Player p = players[currentIdx];
+        int last = worldSize - 1;
+        int target = p.pos + nrSpaces;
+
+        if (target == last) {
+            p.pos = last;
+            finished = true;
+        } else if (target < last) {
+            p.pos = target;
+        } else {
+            int overflow = target - last;
+            int newPos = last - overflow;
+            if (newPos < 0) newPos = 0;
+            p.pos = newPos;
+            if (newPos == last) finished = true;
+        }
+
+        turnCount++;
+        if (!finished) {
+            currentIdx = currentIdx + 1;
+            if (currentIdx >= nPlayers) currentIdx = 0;
+        }
+        return true;
+    }
+
+    public boolean gameIsOver() {
+        return finished;
+    }
+
+    public ArrayList<String> getGameResults() {
+        ArrayList<String> out = new ArrayList<>();
+        out.add("THE GREAT PROGRAMMING JOURNEY");
+        out.add("");
+        out.add("NR. DE TURNOS");
+        out.add(String.valueOf(turnCount));
+
+        if (!finished) return out;
+
+        // encontrar vencedor (pos == last)
+        int last = worldSize - 1;
+        Player winner = null;
+        for (int i = 0; i < nPlayers; i++) {
+            if (players[i].pos == last) { winner = players[i]; break; }
+        }
+
+        out.add("");
+        out.add("VENCEDOR");
+        out.add(winner != null ? winner.name : "-");
+
+        out.add("");
+        out.add("RESTANTES");
+
+
+        Player[] rest = new Player[nPlayers > 0 ? (nPlayers - 1) : 0];
+        int r = 0;
+        for (int i = 0; i < nPlayers; i++) {
+            if (winner == null || players[i].id != winner.id) {
+                rest[r] = players[i];
+                r++;
+            }
+        }
+
+        for (int i = 0; i < r - 1; i++) {
+            int best = i;
+            for (int j = i + 1; j < r; j++) {
+                if (rest[j].pos > rest[best].pos) best = j;
+            }
+            if (best != i) {
+                Player tmp = rest[i];
+                rest[i] = rest[best];
+                rest[best] = tmp;
+            }
+        }
+        for (int i = 0; i < r; i++) {
+            out.add(rest[i].name + " " + (rest[i].pos + 1));
+        }
+        return out;
+    }
+
+
+    public String getImagePng(int nrSquare) {
+        if (worldSize > 0 && nrSquare == worldSize) {
+            return "glory.png"; // existe no .jar
+        }
+        return null;
+    }
+
+    public JPanel getAuthorsPanel() {
+        JPanel panel = new JPanel();
+        panel.setPreferredSize(new Dimension(300, 160));
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.add(new JLabel("THE GREAT PROGRAMMING JOURNEY"));
+        panel.add(new JLabel("Autores:"));
+        panel.add(new JLabel("a22407606 - Fabio Farhat"));
+        panel.add(new JLabel("a22403960 - Rodrigo Nascimento"));
+        return panel;
+    }
+
+    public java.util.HashMap<String, String> customizeBoard() {
+
+        return new java.util.HashMap<>();
+    }
 }
